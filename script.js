@@ -3,14 +3,20 @@
 //oyun tahtası
 const board = document.getElementById("gameBoard");
 
+const menuScreen = document.getElementById("menuScreen");
+const gameScreen = document.getElementById("gameScreen");
+
 //hamle ve süre
 const movesText = document.getElementById("moves");
 const timeText = document.getElementById("time");
 
 const difficultySelect = document.getElementById("difficulty");
 const timeLimitCheckbox = document.getElementById("timeLimit");
+const previewCheckbox = document.getElementById("previewCards");
+
 const startBtn = document.getElementById("startBtn");
-const themeToggle = document.getElementById("themeToggle");
+const restartBtn = document.getElementById("restartBtn");
+const backBtn = document.getElementById("backBtn");
 
 //skor tablosu
 const scoreEasy = document.getElementById("scoreEasy");
@@ -22,11 +28,7 @@ const scoreHard = document.getElementById("scoreHard");
 const maxTime = 60;
 
 //oyunun zorluk ayarını tutar
-let gameConfig = {
-    pairs: 12,
-    columns: 6,
-    timeLimit: false
-};
+let gameConfig = { pairs: 12, columns: 6 };
 
 //seçilen zorluk seviyesine göre kart sayılarını ayarlar
 function applyDifficulty() {
@@ -35,12 +37,17 @@ function applyDifficulty() {
     if (diff === "easy") {
         gameConfig.pairs = 8;
         gameConfig.columns = 4;
+        board.style.maxWidth = "360px";
+
     } else if (diff === "medium") {
         gameConfig.pairs = 12;
         gameConfig.columns = 6;
+        board.style.maxWidth = "520px";
+
     } else {
         gameConfig.pairs = 16;
         gameConfig.columns = 8;
+        board.style.maxWidth = "640px";
     }
 
     board.style.gridTemplateColumns = `repeat(${gameConfig.columns}, 1fr)`;
@@ -83,6 +90,7 @@ class MemoryGame {
         this.time = 0;
         this.timerInterval = null;
         this.matchedPairs = 0;
+        this.previewEnabled = false;
     }
 
     //oyunu başlatır
@@ -91,6 +99,17 @@ class MemoryGame {
         this.timeLimitEnabled = timeLimitEnabled;
         this.totalPairs = images.length;
         this.createCards(images);
+
+        // kart ön izleme
+        if (this.previewEnabled) {
+            const allCards = this.board.querySelectorAll(".card");
+            allCards.forEach(card => card.classList.add("flip"));
+
+            setTimeout(() => {
+                allCards.forEach(card => card.classList.remove("flip"));
+            }, 3000);
+        }
+
         this.startTimer();
     }
 
@@ -99,6 +118,7 @@ class MemoryGame {
         this.firstCard = null;
         this.secondCard = null;
         this.lockBoard = false;
+        this.gameFinished = false;
         this.moves = 0;
         this.time = 0;
         this.matchedPairs = 0;
@@ -129,7 +149,8 @@ class MemoryGame {
 
     //kartları çevirme
     flipCard(card) {
-        if (this.lockBoard || card === this.firstCard || card.classList.contains("flip")) return;
+        if (this.lockBoard || this.gameFinished || card === this.firstCard || card.classList.contains("flip")) return;
+
 
         card.classList.add("flip");
 
@@ -155,9 +176,12 @@ class MemoryGame {
             this.checkGameFinished();
         } else {
             this.lockBoard = true;
+
             setTimeout(() => {
-                this.firstCard.classList.remove("flip");
-                this.secondCard.classList.remove("flip");
+                if (this.firstCard && this.secondCard) {
+                    this.firstCard.classList.remove("flip");
+                    this.secondCard.classList.remove("flip");
+                }
                 this.resetTurn();
             }, 1000);
         }
@@ -194,8 +218,7 @@ class MemoryGame {
     gameOver() {
         clearInterval(this.timerInterval);
         this.lockBoard = true;
-
-        // tüm kartları kapat
+        this.gameFinished = true; 
         const cards = this.board.querySelectorAll(".card");
         cards.forEach(card => card.classList.remove("flip"));
 
@@ -203,7 +226,7 @@ class MemoryGame {
             alert("⏰ Süre doldu! Oyun bitti.");
         }, 200);
     }
-    }
+}
 
 /* scoreboard*/
 
@@ -221,61 +244,45 @@ function saveScoreIfBest(time, moves) {
     const scores = getScores();
     const diff = difficultySelect.value;
 
-
     if (!scores[diff] || time < scores[diff].time) {
         scores[diff] = { time, moves };
-        localStorage.setItem("memoryScores", JSON.stringify(scores)); //localStorage'a kaydediyoruz
-        updateScoreboard();//ekranı güncelle
+        localStorage.setItem("memoryScores", JSON.stringify(scores));
+        updateScoreboard();
     }
 }
 
 //skorları ekrana yazdırma
 function updateScoreboard() {
-
     const s = getScores();
     scoreEasy.textContent = s.easy ? `Kolay: ⏱ ${s.easy.time}s | 🎯 ${s.easy.moves}` : "Kolay: -";
     scoreMedium.textContent = s.medium ? `Orta: ⏱ ${s.medium.time}s | 🎯 ${s.medium.moves}` : "Orta: -";
     scoreHard.textContent = s.hard ? `Zor: ⏱ ${s.hard.time}s | 🎯 ${s.hard.moves}` : "Zor: -";
 }
 
-//tema
-function loadTheme() {
-    const theme = localStorage.getItem("theme");
-    if (theme === "dark") {
-        document.body.classList.add("dark");
-        themeToggle.checked = true;
-    }
-}
-
-function toggleTheme() {
-    if (themeToggle.checked) {
-        document.body.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-    } else {
-        document.body.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-    }
-}
-
-themeToggle.addEventListener("change", toggleTheme);
-loadTheme();
-
 // OYUNU BAŞLATMA
 
-//memory sınıfından bir oyun oluşturuyoruz
 const game = new MemoryGame(board);
 
-//başlat butonuna basılınca çalışır
 async function startGame() {
 
-    applyDifficulty(); // zorluk ayarını uygula
-    gameConfig.timeLimit = timeLimitCheckbox.checked; //süre limiti açık mı kontrol
+    menuScreen.style.display = "none";
+    gameScreen.style.display = "block";
 
-    const images = await getImages(gameConfig.pairs); //API'den görselleri al
+    applyDifficulty();
+    game.previewEnabled = previewCheckbox.checked;
 
-    game.start(images, gameConfig.timeLimit); //oyunu başlat
+    const images = await getImages(gameConfig.pairs);
+
+    game.start(images, timeLimitCheckbox.checked);
 }
 
+backBtn.addEventListener("click", () => {
+    game.reset();
+    gameScreen.style.display = "none";
+    menuScreen.style.display = "block";
+});
+
+restartBtn.addEventListener("click", startGame);
 startBtn.addEventListener("click", startGame);
 
 updateScoreboard();
