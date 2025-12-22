@@ -9,48 +9,63 @@
 <body>
 
 <div class="container">
-    <h1>🧠 Hafıza Oyunu</h1>
 
-    <div class="info">
-        <span>⏱ Süre: <strong id="time">0</strong> sn</span>
-        <span>🎯 Hamle: <strong id="moves">0</strong></span>
+    <!--menü ekrnaı-->
+    <div id="menuScreen" class="screen active">
+        <h1>🧠 Hafıza Oyunu</h1>
+        <p class="subtitle">Kartları eşleştir, en iyi skoru yap!</p>
+
+        <div class="menu-card">
+            <div class="control">
+                <label>Zorluk Seviyesi</label>
+                <select id="difficulty">
+                    <option value="easy">Kolay (4x4)</option>
+                    <option value="medium" selected>Orta (6x4)</option>
+                    <option value="hard">Zor (8x4)</option>
+                </select>
+            </div>
+
+            <div class="control">
+                <label>
+                    <input type="checkbox" id="timeLimit">
+                    Süre Limiti (60 sn)
+                </label>
+            </div>
+
+
+            <div class="control">
+                <label>
+                    <input type="checkbox" id="previewCards">
+                    Kartları Başta Göster (3 sn)
+                </label>
+            </div>
+
+            <button id="startBtn">▶ Oyuna Başla</button>
+
+            <div class="scoreboard">
+                <h3>🏆 En İyi Skorlar</h3>
+                <p id="scoreEasy">Kolay: -</p>
+                <p id="scoreMedium">Orta: -</p>
+                <p id="scoreHard">Zor: -</p>
+            </div>
+        </div>
     </div>
 
-    <div class="dashboard">
-        <div class="control">
-            <label for="difficulty">Zorluk</label>
-            <select id="difficulty">
-                <option value="easy">Kolay (4x4)</option>
-                <option value="medium" selected>Orta (6x4)</option>
-                <option value="hard">Zor (8x4)</option>
-            </select>
+    <!-- oyun ekranı -->
+    <div id="gameScreen" class="screen">
+        <div class="top-bar">
+            <span>⏱ <strong id="time">0</strong> sn</span>
+            <span>🎯 <strong id="moves">0</strong></span>
         </div>
 
-        <div class="control">
-            <label>
-                <input type="checkbox" id="timeLimit">
-                Süre Limiti (60 sn)
-            </label>
-        </div>
+        <div class="game-board" id="gameBoard"></div>
 
-        <div class="control">
-            <label>
-                <input type="checkbox" id="themeToggle">
-                🌙 Koyu Mod
-            </label>
-        </div>
-
-        <button id="startBtn">▶ Oyunu Başlat</button>
-
-        <div class="scoreboard">
-            <h3>🏆 En İyi Skorlar</h3>
-            <p id="scoreEasy">Kolay: -</p>
-            <p id="scoreMedium">Orta: -</p>
-            <p id="scoreHard">Zor: -</p>
+        <div class="game-actions">
+            <button id="restartBtn">🔄 Yeniden Başla</button>
+            <button id="backBtn">⬅ Menüye Dön</button>
         </div>
     </div>
 
-    <div class="game-board" id="gameBoard"></div>
 </div>
 
 <script src="script.js"></script>
