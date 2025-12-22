@@ -1,25 +1,58 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memory Game - Coming Soon</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #f2f2f2;
-      margin: 0;
-    }
-    h1 {
-      color: #444;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hafıza Oyunu</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Memory Game Başlıyor....</h1>
+
+<div class="container">
+    <h1>🧠 Hafıza Oyunu</h1>
+
+    <div class="info">
+        <span>⏱ Süre: <strong id="time">0</strong> sn</span>
+        <span>🎯 Hamle: <strong id="moves">0</strong></span>
+    </div>
+
+    <div class="dashboard">
+        <div class="control">
+            <label for="difficulty">Zorluk</label>
+            <select id="difficulty">
+                <option value="easy">Kolay (4x4)</option>
+                <option value="medium" selected>Orta (6x4)</option>
+                <option value="hard">Zor (8x4)</option>
+            </select>
+        </div>
+
+        <div class="control">
+            <label>
+                <input type="checkbox" id="timeLimit">
+                Süre Limiti (60 sn)
+            </label>
+        </div>
+
+        <div class="control">
+            <label>
+                <input type="checkbox" id="themeToggle">
+                🌙 Koyu Mod
+            </label>
+        </div>
+
+        <button id="startBtn">▶ Oyunu Başlat</button>
+
+        <div class="scoreboard">
+            <h3>🏆 En İyi Skorlar</h3>
+            <p id="scoreEasy">Kolay: -</p>
+            <p id="scoreMedium">Orta: -</p>
+            <p id="scoreHard">Zor: -</p>
+        </div>
+    </div>
+
+    <div class="game-board" id="gameBoard"></div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
